@@ -1,0 +1,96 @@
+<svg class="rich-terminal" viewBox="0 0 1531 294.0" xmlns="http://www.w3.org/2000/svg">
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .terminal-308908725-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-308908725-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .terminal-308908725-r1 { fill: #68a0b3;font-weight: bold }
+.terminal-308908725-r2 { fill: #c5c8c6;font-weight: bold }
+.terminal-308908725-r3 { fill: #c5c8c6 }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-308908725-clip-terminal">
+      <rect x="0" y="0" width="1511.8" height="243.0" />
+    </clipPath>
+    <clipPath id="terminal-308908725-line-0">
+    <rect x="0" y="1.5" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-1">
+    <rect x="0" y="25.9" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-2">
+    <rect x="0" y="50.3" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-3">
+    <rect x="0" y="74.7" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-4">
+    <rect x="0" y="99.1" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-5">
+    <rect x="0" y="123.5" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-6">
+    <rect x="0" y="147.9" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-7">
+    <rect x="0" y="172.3" width="1512.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-308908725-line-8">
+    <rect x="0" y="196.7" width="1512.8" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="1529" height="292" rx="8"/><text class="terminal-308908725-title" fill="#c5c8c6" text-anchor="middle" x="764" y="27">agent-bus&#160;—&#160;what&#160;the&#160;hook&#160;injects&#160;into&#160;an&#160;agent&#x27;s&#160;context</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+        
+    <g transform="translate(9, 41)" clip-path="url(#terminal-308908725-clip-terminal)">
+    
+    <g class="terminal-308908725-matrix">
+    <text class="terminal-308908725-r1" x="0" y="20" textLength="231.8" clip-path="url(#terminal-308908725-line-0)">codex@feat/billing&#160;</text><text class="terminal-308908725-r2" x="231.8" y="20" textLength="24.4" clip-path="url(#terminal-308908725-line-0)">$&#160;</text><text class="terminal-308908725-r2" x="256.2" y="20" textLength="512.4" clip-path="url(#terminal-308908725-line-0)">Edit&#160;src/api/client.ts&#160;&#160;&#160;#&#160;PreToolUse&#160;hook</text><text class="terminal-308908725-r3" x="1512.8" y="20" textLength="12.2" clip-path="url(#terminal-308908725-line-0)">
+</text><text class="terminal-308908725-r3" x="0" y="44.4" textLength="1317.6" clip-path="url(#terminal-308908725-line-1)">agent-bus&#160;warning:&#160;src/api/client.ts&#160;is&#160;claimed&#160;by&#160;claude@feat/auth.&#160;Coordinate&#160;with&#160;send&#160;before&#160;editing&#160;it.</text><text class="terminal-308908725-r3" x="1512.8" y="44.4" textLength="12.2" clip-path="url(#terminal-308908725-line-1)">
+</text><text class="terminal-308908725-r3" x="1512.8" y="68.8" textLength="12.2" clip-path="url(#terminal-308908725-line-2)">
+</text><text class="terminal-308908725-r3" x="0" y="93.2" textLength="902.8" clip-path="url(#terminal-308908725-line-3)">agent-bus&#160;messages&#160;from&#160;other&#160;agents&#160;(reply&#160;with&#160;the&#160;send&#160;tool&#160;if&#160;needed):</text><text class="terminal-308908725-r3" x="1512.8" y="93.2" textLength="12.2" clip-path="url(#terminal-308908725-line-3)">
+</text><text class="terminal-308908725-r3" x="0" y="117.6" textLength="1281" clip-path="url(#terminal-308908725-line-4)">-&#160;[2026-10-20&#160;10:07]&#160;claude@feat/auth&#160;(to&#160;all):&#160;[auto]&#160;claude@feat/auth&#160;ran:&#160;git&#160;push&#160;-u&#160;origin&#160;feat/auth</text><text class="terminal-308908725-r3" x="1512.8" y="117.6" textLength="12.2" clip-path="url(#terminal-308908725-line-4)">
+</text><text class="terminal-308908725-r3" x="1512.8" y="142" textLength="12.2" clip-path="url(#terminal-308908725-line-5)">
+</text><text class="terminal-308908725-r1" x="0" y="166.4" textLength="207.4" clip-path="url(#terminal-308908725-line-6)">claude@feat/auth&#160;</text><text class="terminal-308908725-r2" x="207.4" y="166.4" textLength="24.4" clip-path="url(#terminal-308908725-line-6)">$&#160;</text><text class="terminal-308908725-r2" x="231.8" y="166.4" textLength="451.4" clip-path="url(#terminal-308908725-line-6)">next&#160;prompt&#160;&#160;&#160;#&#160;UserPromptSubmit&#160;hook</text><text class="terminal-308908725-r3" x="1512.8" y="166.4" textLength="12.2" clip-path="url(#terminal-308908725-line-6)">
+</text><text class="terminal-308908725-r3" x="0" y="190.8" textLength="902.8" clip-path="url(#terminal-308908725-line-7)">agent-bus&#160;messages&#160;from&#160;other&#160;agents&#160;(reply&#160;with&#160;the&#160;send&#160;tool&#160;if&#160;needed):</text><text class="terminal-308908725-r3" x="1512.8" y="190.8" textLength="12.2" clip-path="url(#terminal-308908725-line-7)">
+</text><text class="terminal-308908725-r3" x="0" y="215.2" textLength="1024.8" clip-path="url(#terminal-308908725-line-8)">-&#160;[2026-10-20&#160;10:07]&#160;codex@feat/billing:&#160;Thanks!&#160;I&#x27;ll&#160;rebase&#160;once&#160;your&#160;PR&#160;is&#160;merged.</text><text class="terminal-308908725-r3" x="1512.8" y="215.2" textLength="12.2" clip-path="url(#terminal-308908725-line-8)">
+</text><text class="terminal-308908725-r3" x="1512.8" y="239.6" textLength="12.2" clip-path="url(#terminal-308908725-line-9)">
+</text>
+    </g>
+    </g>
+</svg>
