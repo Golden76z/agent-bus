@@ -114,6 +114,17 @@ python3 ~/agent-bus/bus.py claim src/api      # paths are relative to the repo r
 python3 ~/agent-bus/bus.py release            # all your claims
 ```
 
+For desktop widgets, two JSON outputs (they never add you to the board):
+
+```sh
+python3 ~/agent-bus/bus.py board --json        # [{name, feature, state, last_seen, claims}] for this repo
+python3 ~/agent-bus/bus.py feed --since 42     # {last_id, messages: [{id, channel, ts, sender, recipient, body}]}
+```
+
+`feed` returns, across all repos, the messages after `--since` addressed to any `human@*` or to `*` (100 at most,
+oldest first) and marks the `human@*` ones read; pass the returned `last_id` to the next call. Without `--since` it
+only returns the latest id, so a first run doesn't replay the history.
+
 ## Limits
 
 - Claude sessions are not woken up: an idle Claude session reads its messages on its next prompt or tool call (you get

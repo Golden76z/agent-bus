@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bus  # noqa: E402
@@ -318,6 +319,80 @@ class HookTest(unittest.TestCase):
         self.assertEqual(spec["hookEventName"], "UserPromptSubmit")
         self.assertIn("codex@b", spec["additionalContext"])
         self.assertIn("done", spec["additionalContext"])
+
+
+class FeedTest(unittest.TestCase):
+    """JSON outputs read by the desktop island: board --json and the cross-channel human feed."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = os.path.join(self.tmp.name, "bus.db")
+        self.db = bus.connect(self.path)
+
+    def tearDown(self):
+        self.db.close()
+        self.tmp.cleanup()
+
+    def test_board_json_lists_claims(self):
+        cwd = os.path.join(self.tmp.name, "plain")
+        os.mkdir(cwd)
+        bus.claim(self.db, cwd, "claude@a", ["src"])
+        real_connect = bus.connect
+        with mock.patch.object(bus, "connect", lambda: real_connect(self.path)):
+            rows = json.loads(bus.do_board("human", cwd, as_json=True))
+        self.assertEqual([(r["name"], r["claims"]) for r in rows], [("claude@a", ["src"])])
+        self.assertIsNone(rows[0]["feature"])
+
+    def test_feed_all_channels_since(self):
+        bus.send(self.db, "A", "claude@a", "human@develop", "one")
+        second = bus.send(self.db, "B", "codex@b", "human@feat/x", "two")
+        bus.send(self.db, "A", "claude@a", "*", "three")
+        bus.send(self.db, "A", "codex@c", "claude@feat/y", "not for humans")
+        msgs = bus.feed(self.db, 0)["messages"]
+        self.assertEqual([(m["channel"], m["body"]) for m in msgs], [("A", "one"), ("B", "two"), ("A", "three")])
+        self.assertEqual([m["body"] for m in bus.feed(self.db, second)["messages"]], ["three"])
+
+    def test_feed_skips_the_humans_own_messages(self):
+        bus.send(self.db, "A", "human@develop", "*", "my own broadcast")
+        bus.send(self.db, "A", "claude@a", "*", "from an agent")
+        self.assertEqual([m["body"] for m in bus.feed(self.db, 0)["messages"]], ["from an agent"])
+
+    def test_feed_since_past_the_end_resets_to_latest(self):
+        last = bus.send(self.db, "A", "claude@a", "human@develop", "one")
+        self.assertEqual(bus.feed(self.db, last + 500), {"last_id": last, "messages": []})
+
+    def test_board_json_leaves_humans_out(self):
+        cwd = os.path.join(self.tmp.name, "plain")
+        os.mkdir(cwd)
+        bus.send(self.db, cwd, "human@develop", "claude@a", "hi")
+        bus.touch(self.db, cwd, "claude@a")
+        real_connect = bus.connect
+        with mock.patch.object(bus, "connect", lambda: real_connect(self.path)):
+            rows = json.loads(bus.do_board("human", cwd, as_json=True))
+        self.assertEqual([r["name"] for r in rows], ["claude@a"])
+
+    def test_feed_marks_humans_read_without_touch(self):
+        bus.touch(self.db, "A", "codex@b")
+        bus.send(self.db, "A", "claude@a", "human@develop", "direct")
+        bus.send(self.db, "A", "claude@a", "*", "all")
+        cursors = self.db.execute("SELECT name, broadcast_cursor FROM agents ORDER BY name").fetchall()
+        bus.feed(self.db, 0)
+        self.assertEqual(self.db.execute("SELECT read FROM messages WHERE recipient = 'human@develop'").fetchone()[0], 1)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM agents WHERE name LIKE 'human@%'").fetchone()[0], 0)
+        self.assertEqual(self.db.execute("SELECT name, broadcast_cursor FROM agents ORDER BY name").fetchall(), cursors)
+
+    def test_feed_first_run_returns_no_backlog(self):
+        bus.send(self.db, "A", "claude@a", "human@develop", "old")
+        last = bus.send(self.db, "A", "claude@a", "*", "old broadcast")
+        self.assertEqual(bus.feed(self.db, None), {"last_id": last, "messages": []})
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM messages WHERE read = 1").fetchone()[0], 0)
+
+    def test_feed_caps_at_100(self):
+        ids = [bus.send(self.db, "A", "claude@a", "human@x", f"m{i}") for i in range(150)]
+        first = bus.feed(self.db, 0)
+        self.assertEqual([m["id"] for m in first["messages"]], ids[:100])
+        self.assertEqual(first["last_id"], ids[99])
+        self.assertEqual([m["id"] for m in bus.feed(self.db, first["last_id"])["messages"]], ids[100:])
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@
   bus.py serve --agent claude   MCP stdio server
   bus.py hook  --agent claude   hook: injects unread messages, broadcasts push/merge, warns on claimed files
   bus.py board | inbox | send <to> <message>   CLI for humans (as human@<branch>, or --agent)
+  bus.py board --json | feed [--since N]       JSON for desktop widgets
 """
 import argparse
 import json
@@ -181,6 +182,24 @@ def board(conn, channel):
     return [{**dict(r), "claims": claims.get(r["name"], [])} for r in rows]
 
 
+def feed(conn, since):
+    """Messages after `since` to any human@* or to everyone, across all channels (100 at most); marks the human ones read.
+
+    No touch(): the human's name depends on the branch, and reading the feed must not show them on the board
+    nor move the agents' broadcast cursors. `since` None (first run) → only the latest id, no backlog.
+    """
+    latest = conn.execute("SELECT COALESCE(MAX(id), 0) FROM messages").fetchone()[0]
+    # Past the end: the DB was recreated and ids restarted; resume from its latest id instead of waiting forever.
+    if since is None or since > latest:
+        return {"last_id": latest, "messages": []}
+    rows = [dict(r) for r in conn.execute(
+        "SELECT id, channel, ts, sender, recipient, body FROM messages "
+        "WHERE id > ? AND (recipient LIKE 'human@%' OR recipient = '*') AND sender NOT LIKE 'human@%' "
+        "ORDER BY id LIMIT 100", (since,))]
+    conn.executemany("UPDATE messages SET read = 1 WHERE id = ?", [(m["id"],) for m in rows if m["recipient"].startswith("human@")])
+    return {"last_id": rows[-1]["id"] if rows else since, "messages": rows}
+
+
 def _overlaps(a, b):
     return a == b or "." in (a, b) or a.startswith(b + "/") or b.startswith(a + "/")
 
@@ -295,15 +314,23 @@ def do_inbox(agent, cwd):
         return format_messages(unread(conn, channel, name)) or "No unread messages."
 
 
-def do_board(agent, cwd):
+def do_board(agent, cwd, as_json=False):
     channel, name = identity(agent, cwd)
     with closing(connect()) as conn:
         rows = board(conn, channel)
+    if as_json:
+        # The island is the human's view: sending a reply touch()es human@<branch>, which is not an agent row.
+        return json.dumps([r for r in rows if not r["name"].startswith("human@")], ensure_ascii=False)
     return "\n".join(
         f"- {r['name']}{' (you)' if r['name'] == name else ''} | {r['feature'] or '—'} | {r['state'] or '—'} | seen {r['last_seen']}"
         + (f" | claims: {', '.join(r['claims'])}" if r["claims"] else "")
         for r in rows
     ) or "No agents on the bus."
+
+
+def do_feed(agent, cwd, since=None):
+    with closing(connect()) as conn:
+        return json.dumps(feed(conn, since), ensure_ascii=False)
 
 
 def do_claim(agent, cwd, *paths):
@@ -379,14 +406,16 @@ def run_server(agent):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="agent-bus: messages and status board between coding agents of a repo.")
-    cli = {"board": do_board, "inbox": do_inbox, "send": do_send, "claim": do_claim, "release": do_release}
+    cli = {"board": do_board, "inbox": do_inbox, "send": do_send, "claim": do_claim, "release": do_release, "feed": do_feed}
     p.add_argument("mode", choices=["serve", "hook", *cli])
     p.add_argument("args", nargs="*", help="send: <to> <message> (use -- before a message starting with -); claim/release: <paths>")
     p.add_argument("--agent", choices=["claude", "codex", "human"], help="required for serve/hook; CLI default: human")
+    p.add_argument("--json", action="store_true", help="board: JSON output (feed always prints JSON)")
+    p.add_argument("--since", type=int, help="feed: messages after this id; omitted → latest id only, no backlog")
     a = p.parse_args()
     if a.mode in ("serve", "hook") and a.agent in (None, "human"):
         p.error(f"{a.mode} needs --agent claude or --agent codex")
-    expected = {"board": 0, "inbox": 0, "send": 2, "serve": 0, "hook": 0}.get(a.mode)
+    expected = {"board": 0, "inbox": 0, "send": 2, "serve": 0, "hook": 0, "feed": 0}.get(a.mode)
     if (expected is not None and len(a.args) != expected) or (a.mode == "claim" and not a.args):
         p.error(f"wrong number of arguments for {a.mode}")
     if a.mode == "serve":
@@ -394,4 +423,5 @@ if __name__ == "__main__":
     elif a.mode == "hook":
         run_hook(a.agent)
     else:
-        print(cli[a.mode](a.agent or "human", os.getcwd(), *a.args))
+        kw = {"board": {"as_json": a.json}, "feed": {"since": a.since}}.get(a.mode, {})
+        print(cli[a.mode](a.agent or "human", os.getcwd(), *a.args, **kw))
